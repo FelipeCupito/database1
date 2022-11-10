@@ -36,15 +36,35 @@ CREATE TABLE pagos_cuotas(
 
 CREATE TABLE backup_(
     dni int not null,
-    telefono int not null,
+    telefono int,
     nombre char(50) not null,
-    nro_prestamos char(100) not null,
-    total_prestamo float not null,
-    total_pago float not null,
-    deudor int not null, ---0 false, 1 true
+    cant_prest int not null, ---Cantidad de préstamos otorgados
+    total_prestamo float not null,  --Monto total de préstamos otorgados
+    total_pago float not null,  ---Monto total de pagos realizados
+    deudor int not null, ---Indicador de pagos pendientes: 1 si no pago
 
     primary key(dni)
 );
 
 
+create or replace function delete_cliente() returns trigger
+as $$
+    declare
+        dni backup_.dni%type;
+        nombre backup_.nombre%type;
+        telefono backup_.telefono%type;
+        cant_prest backup_.cant_prest%type;
+        total_prestamo backup_.total_prestamo%type;
+        total_pago backup_.total_pago%type;
+        deudor backup_.deudor%type;
 
+    begin
+        select 
+
+    end;
+$$LANGUAGE plpgsql;
+
+create trigger backup
+    after delete on clientes_banco
+    for each row
+    execute procedure delete_cliente()
