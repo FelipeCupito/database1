@@ -25,12 +25,12 @@ CREATE TABLE prestamos_banco(
 );
 
 CREATE TABLE pagos_cuotas(
-    nro3 INT NOT NULL,
+    nro INT NOT NULL,
     prestamo_id int not null,
     importe int not null,
     fecha date not null,
 
-    primary key(nro3, prestamo_id),
+    primary key(nro, prestamo_id),
     foreign key (prestamo_id) references prestamos_banco
 );
 
