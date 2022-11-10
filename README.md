@@ -15,7 +15,7 @@ Crear las tablas y triggers:
 
 conctarme a la basedatos:
 ```
-psql -h bd1.it.itba.edu.ar -U fcupito PROOF
+psql -h bd1.it.itba.edu.ar -U {user} PROOF
 ```
 
 pasar csv a las tablas:
