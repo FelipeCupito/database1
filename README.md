@@ -3,7 +3,11 @@
 ###
 pasar lo datos:
 ```
-scp funciones.sql clientes_banco.csv pagos_cuotas.csv prestamos_banco.csv {user}@pampero.itba.edu.ar:/home/{user}
+scp funciones.sql 
+clientes_banco.csv 
+pagos_cuotas.csv 
+prestamos_banco.csv 
+{user}@pampero.itba.edu.ar:/home/{user}
 ```
 Crear las tablas y triggers:
 ```
