@@ -53,53 +53,38 @@ TODO:
     Query de data a copiar en la tabla backup
  */
 
-create or replace function delete_cliente() returns trigger
+create or replace function copyDeletedClient() returns trigger
 as $$
     declare
-        dni backup_.dni%type;
-        nombre backup_.nombre%type;
-        telefono backup_.telefono%type;
         cant_prest backup_.cant_prest%type;  ---Cantidad de préstamos otorgados
         total_prestamo backup_.total_prestamo%type; --Monto total de préstamos otorgados
         total_pago backup_.total_pago%type;   ---Monto total de pagos realizados
         deudor backup_.deudor%type;  ---Indicador de pagos pendientes: 1 si no pago
 
-
     begin
-        select dni into dni from clientes_banco where dni = old.dni;
-
-        select nombre into nombre from clientes_banco where nombre = old.nombre;
-
-        select telefono into telefono from clientes_banco where telefono = old.telefono;
 
         select count(*) into cant_prest from  prestamos_banco where cliente_id = dni;
 
         select sum(importe) into total_prestamo from prestamos_banco where cliente_id = dni;
 
-        --creo que para total_pago hay que usar un cursor
+        insert into backup_ values (OLD.dni, OLD.nombre, OLD.telefono, cant_prest, total_prestamo, null, null);
+
+        return OLD;
 
     end;
 $$LANGUAGE plpgsql;
 
+/*
 create trigger backup
     after delete on clientes_banco
     for each row
-    execute procedure delete_cliente()
+    execute procedure delete_cliente();
+*/
 
-/* Trigger testeado y funcando */
-CREATE FUNCTION copyDeletedClient() RETURNS trigger AS
-$$
-BEGIN
-   INSERT INTO backup_ VALUES(OLD.dni, OLD.nombre, OLD.telefono, null, null, null, null);
-   RETURN OLD;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER moveDeleted
-BEFORE DELETE ON clientes_banco
-FOR EACH ROW
-EXECUTE PROCEDURE copyDeletedClient();
+CREATE TRIGGER backup
+    BEFORE DELETE ON clientes_banco
+    FOR EACH ROW
+    EXECUTE PROCEDURE copyDeletedClient();
 
 /* Test trigger */
-DELETE FROM clientes_banco
-WHERE id = '2';
+DELETE FROM clientes_banco WHERE id = '2';
