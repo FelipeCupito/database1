@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS clientes_banco cascade ;
 DROP TABLE IF EXISTS prestamos_banco cascade ;
 DROP TABLE IF EXISTS pagos_cuotas;
 DROP TABLE IF EXISTS backup_;
+DROP FUNCTION copyDeletedClient();
 
 CREATE TABLE clientes_banco
 (
@@ -36,7 +37,7 @@ CREATE TABLE pagos_cuotas(
 
 CREATE TABLE backup_(
     dni int not null,
-    telefono int,
+    telefono char(30),
     nombre char(50) not null,
     cant_prest int not null, ---Cantidad de préstamos otorgados
     total_prestamo float not null,  --Monto total de préstamos otorgados
@@ -46,6 +47,11 @@ CREATE TABLE backup_(
     primary key(dni)
 );
 
+/*
+TODO:
+    Query de borrado de cliente de todas las tablas
+    Query de data a copiar en la tabla backup
+ */
 
 create or replace function delete_cliente() returns trigger
 as $$
@@ -79,3 +85,21 @@ create trigger backup
     after delete on clientes_banco
     for each row
     execute procedure delete_cliente()
+
+/* Trigger testeado y funcando */
+CREATE FUNCTION copyDeletedClient() RETURNS trigger AS
+$$
+BEGIN
+   INSERT INTO backup_ VALUES(OLD.dni, OLD.nombre, OLD.telefono, null, null, null, null);
+   RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER moveDeleted
+BEFORE DELETE ON clientes_banco
+FOR EACH ROW
+EXECUTE PROCEDURE copyDeletedClient();
+
+/* Test trigger */
+DELETE FROM clientes_banco
+WHERE id = '2';
