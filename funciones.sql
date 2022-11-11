@@ -53,13 +53,24 @@ as $$
         dni backup_.dni%type;
         nombre backup_.nombre%type;
         telefono backup_.telefono%type;
-        cant_prest backup_.cant_prest%type;
-        total_prestamo backup_.total_prestamo%type;
-        total_pago backup_.total_pago%type;
-        deudor backup_.deudor%type;
+        cant_prest backup_.cant_prest%type;  ---Cantidad de préstamos otorgados
+        total_prestamo backup_.total_prestamo%type; --Monto total de préstamos otorgados
+        total_pago backup_.total_pago%type;   ---Monto total de pagos realizados
+        deudor backup_.deudor%type;  ---Indicador de pagos pendientes: 1 si no pago
+
 
     begin
-        select 
+        select dni into dni from clientes_banco where dni = old.dni;
+
+        select nombre into nombre from clientes_banco where nombre = old.nombre;
+
+        select telefono into telefono from clientes_banco where telefono = old.telefono;
+
+        select count(*) into cant_prest from  prestamos_banco where cliente_id = dni;
+
+        select sum(importe) into total_prestamo from prestamos_banco where cliente_id = dni;
+
+        --creo que para total_pago hay que usar un cursor
 
     end;
 $$LANGUAGE plpgsql;
