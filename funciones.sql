@@ -69,6 +69,12 @@ as $$
 
         insert into backup_ values (OLD.dni, OLD.nombre, OLD.telefono, cant_prest, total_prestamo, null, null);
 
+        select sum(pagos_cuotas.importe) into total_pago from (pagos_cuotas inner join prestamos_banco ON prestamos_banco.id = prestamo_id) where cliente_id = OLD.id;
+
+        /*select into deudor if (total_prestamo > total_pago, "true", "false");*/
+
+        if (total_prestamo > total_pago) then update backup_ set deudor = "true" else update backup_ set deudor = "false";
+
         return OLD;
 
     end;
