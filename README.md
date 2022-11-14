@@ -1,5 +1,5 @@
 # TPE Bases de Datos I
-## 2do Cuatrimestre 2022
+
 ### Autores: Felipe Cupitó, Juan Pablo Arias, Nicole Hinojo Toré
 
 ### Copiar archivos en servidor del ITBA (Pampero):
