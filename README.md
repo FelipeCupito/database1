@@ -1,7 +1,8 @@
-# database1
+# TPE Bases de Datos I
+## 2do Cuatrimestre 2022
+### Autores: Felipe Cupitó, Juan Pablo Arias, Nicole Hinojo Toré
 
-###
-pasar lo datos:
+### Copiar archivos en servidor del ITBA (Pampero):
 ```
 scp funciones.sql 
 clientes_banco.csv 
@@ -9,7 +10,7 @@ pagos_cuotas.csv
 prestamos_banco.csv 
 {user}@pampero.itba.edu.ar:/home/{user}
 ```
-Crear las tablas:
+### Crear las tablas:
 ```
 CREATE TABLE clientes_banco
 (
@@ -55,7 +56,7 @@ CREATE TABLE backup_(
 );
 ```
 
-crear trigger y función que ejecuta antes del borrado:
+### Crear trigger y función que se ejecuta antes del borrado:
 ```
 create or replace function copyDeletedClient() returns trigger
 as $$
@@ -88,12 +89,12 @@ CREATE TRIGGER backup
     EXECUTE PROCEDURE copyDeletedClient();
 ```
 
-conctarme a la DB:
+### Conectarse a la DB del ITBA por consola de PSQL:
 ```
 psql -h bd1.it.itba.edu.ar -U {user} PROOF
 ```
 
-copiar data de csv a las tablas:
+### Copiar data de csv a las tablas desde terminal PSQL:
 ```
 \copy clientes_banco(id,dni,telefono,nombre,direccion)
 FROM 'clientes_banco.csv'
