@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS clientes_banco cascade ;
 DROP TABLE IF EXISTS prestamos_banco cascade ;
 DROP TABLE IF EXISTS pagos_cuotas;
 DROP TABLE IF EXISTS backup_;
+DROP TRIGGER IF EXISTS backup ON clientes_banco;
 DROP FUNCTION copyDeletedClient();
 
 CREATE TABLE clientes_banco
@@ -22,7 +23,7 @@ CREATE TABLE prestamos_banco(
     importe float not null,
 
     primary key(id),
-    foreign key (cliente_id) references clientes_banco
+    foreign key (cliente_id) references clientes_banco on delete cascade
 );
 
 CREATE TABLE pagos_cuotas(
@@ -32,7 +33,7 @@ CREATE TABLE pagos_cuotas(
     fecha date not null,
 
     primary key(nro, prestamo_id),
-    foreign key (prestamo_id) references prestamos_banco
+    foreign key (prestamo_id) references prestamos_banco on delete cascade
 );
 
 CREATE TABLE backup_(
@@ -42,16 +43,10 @@ CREATE TABLE backup_(
     cant_prest int not null, ---Cantidad de préstamos otorgados
     total_prestamo float not null,  --Monto total de préstamos otorgados
     total_pago float not null,  ---Monto total de pagos realizados
-    deudor int not null, ---Indicador de pagos pendientes: 1 si no pago
+    deudor boolean not null, ---Indicador de pagos pendientes: 1 si no pago
 
     primary key(dni)
 );
-
-/*
-TODO:
-    Query de borrado de cliente de todas las tablas
-    Query de data a copiar en la tabla backup
- */
 
 create or replace function copyDeletedClient() returns trigger
 as $$
@@ -63,29 +58,20 @@ as $$
 
     begin
 
-        select count(*) into cant_prest from  prestamos_banco where cliente_id = dni;
+        select count(*) into cant_prest from  prestamos_banco where cliente_id = OLD.id;
 
-        select sum(importe) into total_prestamo from prestamos_banco where cliente_id = dni;
+        select sum(importe) into total_prestamo from prestamos_banco where cliente_id = OLD.id;
 
-        insert into backup_ values (OLD.dni, OLD.nombre, OLD.telefono, cant_prest, total_prestamo, null, null);
+        select coalesce(sum(pagos_cuotas.importe), 0) into total_pago from (pagos_cuotas inner join prestamos_banco ON prestamos_banco.id = prestamo_id) where cliente_id = OLD.id;
 
-        select sum(pagos_cuotas.importe) into total_pago from (pagos_cuotas inner join prestamos_banco ON prestamos_banco.id = prestamo_id) where cliente_id = OLD.id;
+        select into deudor CASE WHEN total_prestamo > total_pago THEN true ELSE false END;
 
-        /*select into deudor if (total_prestamo > total_pago, "true", "false");*/
-
-        if (total_prestamo > total_pago) then update backup_ set deudor = "true" else update backup_ set deudor = "false";
+        insert into backup_ values (OLD.dni, OLD.nombre, OLD.telefono, cant_prest, round(total_prestamo::numeric, 2), round(total_pago::numeric, 2), deudor);
 
         return OLD;
 
-    end;
+    end
 $$LANGUAGE plpgsql;
-
-/*
-create trigger backup
-    after delete on clientes_banco
-    for each row
-    execute procedure delete_cliente();
-*/
 
 CREATE TRIGGER backup
     BEFORE DELETE ON clientes_banco
@@ -93,4 +79,9 @@ CREATE TRIGGER backup
     EXECUTE PROCEDURE copyDeletedClient();
 
 /* Test trigger */
+DELETE FROM clientes_banco WHERE id = '1';
 DELETE FROM clientes_banco WHERE id = '2';
+DELETE FROM clientes_banco WHERE id = '4';
+DELETE FROM clientes_banco WHERE id = '5';
+DELETE FROM clientes_banco WHERE id = '36';
+DELETE FROM clientes_banco WHERE id = '37';
