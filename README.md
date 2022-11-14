@@ -112,3 +112,13 @@ delimiter ','
 csv header;
 
 ```
+
+### Test
+```
+DELETE FROM clientes_banco WHERE id = '1';
+DELETE FROM clientes_banco WHERE id = '2';
+DELETE FROM clientes_banco WHERE id = '4';
+DELETE FROM clientes_banco WHERE id = '5';
+DELETE FROM clientes_banco WHERE id = '36';
+DELETE FROM clientes_banco WHERE id = '37';
+```
