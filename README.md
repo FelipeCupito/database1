@@ -2,7 +2,7 @@
 
 ### Autores: Felipe Cupitó, Juan Pablo Arias, Nicole Hinojo Toré
 
-### Copiar archivos en servidor del ITBA (Pampero):
+### Copiar archivos en el servidor del ITBA (Pampero):
 ```
 scp funciones.sql 
 clientes_banco.csv 
@@ -94,7 +94,7 @@ CREATE TRIGGER backup
 psql -h bd1.it.itba.edu.ar -U {user} PROOF
 ```
 
-### Copiar data de csv a las tablas desde terminal PSQL:
+### Copiar data de CSVs a las tablas desde terminal PSQL:
 ```
 \copy clientes_banco(id,dni,telefono,nombre,direccion)
 FROM 'clientes_banco.csv'
@@ -113,7 +113,7 @@ csv header;
 
 ```
 
-### Test
+### Tests
 ```
 DELETE FROM clientes_banco WHERE id = '1';
 DELETE FROM clientes_banco WHERE id = '2';
