@@ -25,7 +25,7 @@ psql -h bd1.it.itba.edu.ar -U {user} PROOF
 ```
 
 ### 5. Importar los datos de los CSVs a las tablas:
-#### (Ejecutar una instrucion a las vez)
+#### (Ejecutar una instrucción a las vez)
 ```
 \copy clientes_banco(id,dni,telefono,nombre,direccion)
 FROM 'clientes_banco.csv'
