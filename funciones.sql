@@ -1,9 +1,8 @@
-DROP TABLE IF EXISTS clientes_banco cascade ;
-DROP TABLE IF EXISTS prestamos_banco cascade ;
+DROP TABLE IF EXISTS clientes_banco cascade;
+DROP TABLE IF EXISTS prestamos_banco cascade;
 DROP TABLE IF EXISTS pagos_cuotas;
-DROP TABLE IF EXISTS backup_;
+DROP TABLE IF EXISTS backup_tabletable;
 DROP TRIGGER IF EXISTS backup ON clientes_banco;
-DROP FUNCTION copyDeletedClient();
 
 CREATE TABLE clientes_banco
 (
@@ -36,7 +35,7 @@ CREATE TABLE pagos_cuotas(
     foreign key (prestamo_id) references prestamos_banco on delete cascade
 );
 
-CREATE TABLE backup_(
+CREATE TABLE backup_table(
     dni int not null,
     telefono char(30),
     nombre char(50) not null,
@@ -51,10 +50,10 @@ CREATE TABLE backup_(
 create or replace function copyDeletedClient() returns trigger
 as $$
     declare
-        cant_prest backup_.cant_prest%type;  ---Cantidad de préstamos otorgados
-        total_prestamo backup_.total_prestamo%type; --Monto total de préstamos otorgados
-        total_pago backup_.total_pago%type;   ---Monto total de pagos realizados
-        deudor backup_.deudor%type;  ---Indicador de pagos pendientes: 1 si no pago
+        cant_prest backup_table.cant_prest%type;  ---Cantidad de préstamos otorgados
+        total_prestamo backup_table.total_prestamo%type; --Monto total de préstamos otorgados
+        total_pago backup_table.total_pago%type;   ---Monto total de pagos realizados
+        deudor backup_table.deudor%type;  ---Indicador de pagos pendientes: 1 si no pago
 
     begin
 
@@ -66,7 +65,7 @@ as $$
 
         select into deudor CASE WHEN total_prestamo > total_pago THEN true ELSE false END;
 
-        insert into backup_ values (OLD.dni, OLD.nombre, OLD.telefono, cant_prest, round(total_prestamo::numeric, 2), round(total_pago::numeric, 2), deudor);
+        insert into backup_table values (OLD.dni, OLD.nombre, OLD.telefono, cant_prest, round(total_prestamo::numeric, 2), round(total_pago::numeric, 2), deudor);
 
         return OLD;
 
@@ -79,9 +78,9 @@ CREATE TRIGGER backup
     EXECUTE PROCEDURE copyDeletedClient();
 
 /* Test trigger */
-DELETE FROM clientes_banco WHERE id = '1';
-DELETE FROM clientes_banco WHERE id = '2';
-DELETE FROM clientes_banco WHERE id = '4';
-DELETE FROM clientes_banco WHERE id = '5';
-DELETE FROM clientes_banco WHERE id = '36';
-DELETE FROM clientes_banco WHERE id = '37';
+--DELETE FROM clientes_banco WHERE id = '1';
+--DELETE FROM clientes_banco WHERE id = '2';
+--DELETE FROM clientes_banco WHERE id = '4';
+--DELETE FROM clientes_banco WHERE id = '5';
+--DELETE FROM clientes_banco WHERE id = '36';
+--DELETE FROM clientes_banco WHERE id = '37';
